@@ -1,3 +1,9 @@
+%> @file scr_Chi_Init.m
+%> @brief Chi and H matrixes Init
+%> @author Korogodin, I.V.
+%> @date   24 May 2011
+%> @todo 
+
 Chi_ps(1, 1) = 590; % Задержки в коммутаторе
 Chi_ps(1, 2) = 669;
 Chi_ps(1, 3) = 656;
