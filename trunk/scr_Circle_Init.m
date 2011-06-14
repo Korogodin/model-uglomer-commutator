@@ -1,3 +1,9 @@
+%> @file scr_Circle_Init.m
+%> @brief Commutator circle calculating
+%> @author Korogodin, I.V.
+%> @date   24 May 2011
+%> @todo 
+
 Commut_Phase = ones(1,C+1);
 Commut_Change = zeros(1,C+1);
 for c = 2:(C+1)

@@ -1,3 +1,10 @@
+%> @file scr_ExtrIst_Init.m
+%> @brief Extrapolations, Estimations and True Values Init
+%> @author Korogodin, I.V.
+%> @date   24 May 2011
+%> @todo 
+
+
 X21_1_extr = [0; 0; 0]; % Экстраполяции разности фаз
 X31_1_extr = [0; 0; 0]; % для первого спутника
 X21_2_extr = [0; 0; 0]; % Экстраполяции разности фаз

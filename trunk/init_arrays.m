@@ -1,3 +1,9 @@
+%> @file init_arrays.m
+%> @brief Arrays initialisation
+%> @author Korogodin, I.V.
+%> @date   24 May 2011
+%> @todo 
+
 Delta21_1_c = nan(1,C); Delta31_1_c = nan(1,C);
 Delta21_2_c = nan(1,C); Delta31_2_c = nan(1,C);
 psi_izm_21_1_c = nan(1, C); psi_izm_31_1_c = nan(1, C);
