@@ -31,4 +31,6 @@ X31_12_2_j_extr = [0; 0 ];
 X21_23_2_j_extr = [0; 0 ]; 
 X31_23_2_j_extr = [0; 0 ]; 
 
+J21_12_buf = NaN; J31_12_buf = NaN;
+J21_23_buf = NaN; J31_23_buf = NaN;
 

@@ -18,7 +18,7 @@ Tc = 0.005; % Интервал накопления в корреляторе
 C = fix(Tmod/Tc);
 t = Tc:Tc:Tmod; le_t = length(t);
 stdn_IQ = 600;
-qcno_dB = 23;
+qcno_dB = 19;
 [A_IQ, qcno] = qcno_change(qcno_dB, stdn_IQ, Tc); % Амплитуда, соответсвующая выбранному qcno_dB
 
 std_Ud = sqrt( 2 / (qcno*Tc) );
@@ -163,6 +163,8 @@ for c = 1:C
     X21_2_ist = F*X21_2_ist + randn(1,1)*std_Psi;
     X31_2_ist = F*X31_2_ist + randn(1,1)*std_Psi;
     
+    scr_J2pi;
+   
     X21_12_1_j_extr = F2 * X21_12_1_j_extr;
     X31_12_1_j_extr = F2 * X31_12_1_j_extr;
     X21_23_1_j_extr = F2 * X21_23_1_j_extr;
