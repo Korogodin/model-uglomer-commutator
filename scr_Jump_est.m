@@ -26,26 +26,26 @@ dJ_21_12_c(c) = J21_12_2_c(c) - J21_12_1_c(c);
 dJ_31_12_c(c) = J31_12_2_c(c) - J31_12_1_c(c);
 dJ_21_23_c(c) = J21_23_2_c(c) - J21_23_1_c(c);
 dJ_31_23_c(c) = J31_23_2_c(c) - J31_23_1_c(c);
-if dJ_21_12_c(c) > pi
-   dJ_21_12_c(c) = dJ_21_12_c(c) - 2*pi;
-elseif dJ_21_12_c(c) < -pi
-   dJ_21_12_c(c) = dJ_21_12_c(c) + 2*pi;
-end
-if dJ_31_12_c(c) > pi
-   dJ_31_12_c(c) = dJ_31_12_c(c) - 2*pi;
-elseif dJ_31_12_c(c) < -pi
-   dJ_31_12_c(c) = dJ_31_12_c(c) + 2*pi;
-end
-if dJ_21_23_c(c) > pi
-   dJ_21_23_c(c) = dJ_21_23_c(c) - 2*pi;
-elseif dJ_21_23_c(c) < -pi
-   dJ_21_23_c(c) = dJ_21_23_c(c) + 2*pi;
-end
-if dJ_31_23_c(c) > pi
-   dJ_31_23_c(c) = dJ_31_23_c(c) - 2*pi;
-elseif dJ_31_23_c(c) < -pi
-   dJ_31_23_c(c) = dJ_31_23_c(c) + 2*pi;
-end
+% if dJ_21_12_c(c) > pi
+%    dJ_21_12_c(c) = dJ_21_12_c(c) - 2*pi;
+% elseif dJ_21_12_c(c) < -pi
+%    dJ_21_12_c(c) = dJ_21_12_c(c) + 2*pi;
+% end
+% if dJ_31_12_c(c) > pi
+%    dJ_31_12_c(c) = dJ_31_12_c(c) - 2*pi;
+% elseif dJ_31_12_c(c) < -pi
+%    dJ_31_12_c(c) = dJ_31_12_c(c) + 2*pi;
+% end
+% if dJ_21_23_c(c) > pi
+%    dJ_21_23_c(c) = dJ_21_23_c(c) - 2*pi;
+% elseif dJ_21_23_c(c) < -pi
+%    dJ_21_23_c(c) = dJ_21_23_c(c) + 2*pi;
+% end
+% if dJ_31_23_c(c) > pi
+%    dJ_31_23_c(c) = dJ_31_23_c(c) - 2*pi;
+% elseif dJ_31_23_c(c) < -pi
+%    dJ_31_23_c(c) = dJ_31_23_c(c) + 2*pi;
+% end
 
 J_nabla = ...
     [dJ_21_12_c(c); 

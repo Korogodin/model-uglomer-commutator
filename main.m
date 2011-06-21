@@ -18,7 +18,7 @@ Tc = 0.005; % Интервал накопления в корреляторе
 C = fix(Tmod/Tc);
 t = Tc:Tc:Tmod; le_t = length(t);
 stdn_IQ = 600;
-qcno_dB = 19;
+qcno_dB = 45;
 [A_IQ, qcno] = qcno_change(qcno_dB, stdn_IQ, Tc); % Амплитуда, соответсвующая выбранному qcno_dB
 
 std_Ud = sqrt( 2 / (qcno*Tc) );
