@@ -9,17 +9,19 @@
 % http://srns.ru/wiki/Blog:Korogodin/03.06.2011,_Алгоритм_оценки_задержки_а
 % налоговых_частей_в_случае_трех_антенн
 
-clear all
+% clear all
 clc
 
-Tmod = 300; %s
+Tmod = 600; %s
 
 Tc = 0.005; % Интервал накопления в корреляторе
 C = fix(Tmod/Tc);
 t = Tc:Tc:Tmod; le_t = length(t);
 stdn_IQ = 600;
-qcno_dB = 45;
+qcno_dB = 23;
 [A_IQ, qcno] = qcno_change(qcno_dB, stdn_IQ, Tc); % Амплитуда, соответсвующая выбранному qcno_dB
+
+std_Ud = sqrt( 2 / (qcno*Tc) );
 
 F = [1 Tc Tc^2/2;
      0 1  Tc;
@@ -37,18 +39,18 @@ K(1) = 2*(K(3))^(1/3);
 K = K*Tc; % Коэффициенты дискретной системы
 
 Kj = nan(2,1);
-Hj = 20;
+Hj = 1;
 Kj(2) = (Hj / 0.53)^2;
 Kj(1) = sqrt(2*Kj(2));
-Kj = Kj*Tc; Kj(2) = 0;
+Kj = Kj*Tc; Kj(2) = 0*Kj(2)/1000;
 scr_ExtrIstEst_Init;
 
 scr_Chi_Init; % Значение задержек в коммутаторе и разности аналоговых частей
 
-freq_analog_change = 0.1; % Период смены аналоговой части
+freq_analog_change = 0.25; % Период смены аналоговой части
 scr_Circle_Init; % Определяем циклограмму переключений
 
-csum_max = 30; csum = csum_max + 1;
+csum_max = 64; csum = csum_max + 1;
 
 init_arrays; 
 for c = 1:C
@@ -82,24 +84,35 @@ for c = 1:C
     psi_izm_21_1_c(c) = Psi21_1_izm;     psi_izm_31_1_c(c) = Psi31_1_izm;
     psi_izm_21_2_c(c) = Psi21_2_izm;     psi_izm_31_2_c(c) = Psi31_2_izm;
     
-    % Система слежения за первой разностью фаз
-    Ud21_1 = mymod2pi(Psi21_1_izm - X21_1_extr(1) - J21_1_extr); % Эмулятор дискриминатора
-    X21_1_extr = X21_1_extr + K*Ud21_1; % Вектор оценок на c-й интервал (этап коррекции)
-    X21_1_est_c(c) = X21_1_extr(1);  X21_1_extr = F*X21_1_extr; % Экстраполяция на интервал c+1
-    Ud31_1 = mymod2pi(Psi31_1_izm - X31_1_extr(1) - J31_1_extr);
-    X31_1_extr = X31_1_extr + K*Ud31_1; % Вектор оценок на c-й интервал
-    X31_1_est_c(c) = X31_1_extr(1);  X31_1_extr = F*X31_1_extr; % Экстраполяция на интервал c+1
-    % аналогично для второго спутника
-    Ud21_2 = mymod2pi(Psi21_2_izm - X21_2_extr(1) - J21_2_extr);
-    X21_2_extr = X21_2_extr + K*Ud21_2; % Вектор оценок на c-й интервал
-    X21_2_est_c(c) = X21_2_extr(1);  X21_2_extr = F*X21_2_extr; % Экстраполяция на интервал c+1
-    Ud31_2 = mymod2pi(Psi31_2_izm - X31_2_extr(1) - J31_2_extr);
-    X31_2_extr = X31_2_extr + K*Ud31_2; % Вектор оценок на c-й интервал
-    X31_2_est_c(c) = X31_2_extr(1);  X31_2_extr = F*X31_2_extr; % Экстраполяция на интервал c+1
     
     if (Commut_Change(c) ~= 0)
         csum = 1;
     end
+    
+    % Система слежения за первой разностью фаз
+    Ud21_1 = mymod2pi(Psi21_1_izm - X21_1_extr(1) - J21_1_extr) + std_Ud *randn(1,1); % Эмулятор дискриминатора
+    if csum > csum_max
+        X21_1_extr = X21_1_extr + K*Ud21_1; % Вектор оценок на c-й интервал (этап коррекции)
+    end
+    X21_1_est_c(c) = X21_1_extr(1);  X21_1_extr = F*X21_1_extr; % Экстраполяция на интервал c+1
+    Ud31_1 = mymod2pi(Psi31_1_izm - X31_1_extr(1) - J31_1_extr)+ std_Ud *randn(1,1);
+    if csum > csum_max
+        X31_1_extr = X31_1_extr + K*Ud31_1; % Вектор оценок на c-й интервал
+    end
+    X31_1_est_c(c) = X31_1_extr(1);  X31_1_extr = F*X31_1_extr; % Экстраполяция на интервал c+1
+    % аналогично для второго спутника
+    Ud21_2 = mymod2pi(Psi21_2_izm - X21_2_extr(1) - J21_2_extr) + std_Ud *randn(1,1);
+    if csum > csum_max
+        X21_2_extr = X21_2_extr + K*Ud21_2; % Вектор оценок на c-й интервал
+    end
+    X21_2_est_c(c) = X21_2_extr(1);  X21_2_extr = F*X21_2_extr; % Экстраполяция на интервал c+1
+    Ud31_2 = mymod2pi(Psi31_2_izm - X31_2_extr(1) - J31_2_extr) + std_Ud *randn(1,1);
+    if csum > csum_max
+        X31_2_extr = X31_2_extr + K*Ud31_2; % Вектор оценок на c-й интервал
+    end
+    X31_2_est_c(c) = X31_2_extr(1);  X31_2_extr = F*X31_2_extr; % Экстраполяция на интервал c+1
+    
+
     
     if csum<=csum_max
         if Commut_Phase(c) == 2
@@ -119,9 +132,9 @@ for c = 1:C
     % Текущие оценки скачков 1->2 и 2->3
     scr_Jump_est; % Запускать до эволюции Delta!
      
-    x1_nabla = H1_nabla^-1 * J1_nabla;
-    x2_nabla = H2_nabla^-1 * J2_nabla;
-    x_nabla = (H_nabla'*H_nabla)^-1*H_nabla' * J_nabla;
+    x1_nabla = H1_nabla^-1 * J1_nabla; % Решение только по скачку 1->2
+    x2_nabla = H2_nabla^-1 * J2_nabla; % Решение только по скачку 1->3
+    x_nabla = (H_nabla'*H_nabla)^-1*H_nabla' * J_nabla; % Общее решение по всем скачкам
     
     Nabla21_c(c) = x_nabla(1);
     Nabla31_c(c) = x_nabla(2);
@@ -244,3 +257,34 @@ plot(t, Delta21_1_c, t, Delta21_2_c, t, Delta31_1_c, t, Delta31_2_c);
 xlabel('t, sec');
 ylabel('\Delta');
 legend('\Delta_{21}^{(1)}',  '\Delta_{21}^{(2)}',  '\Delta_{31}^{(1)}', '\Delta_{31}^{(2)}')
+
+hF = figure(hF+1); subN = 1;
+subplot(2,2,subN); subN = subN+1;
+plot(t, X21_2_est_c - X21_1_est_c - Nabla21_c, t, X21_2_ist_c - X21_1_ist_c);
+xlabel('t, sec');
+ylabel('\Delta \Psi_{21}');
+legend('Estimation', 'True');
+
+subplot(2,2,subN); subN = subN+1;
+plot(t, X31_2_est_c - X31_1_est_c - Nabla31_c, t, X31_2_ist_c - X31_1_ist_c);
+xlabel('t, sec');
+ylabel('\Delta \Psi_{31}');
+legend('Estimation', 'True')
+
+Err_dPsi21 =  X21_2_est_c - X21_1_est_c - Nabla21_c - X21_2_ist_c + X21_1_ist_c;
+tmp = Err_dPsi21(end) - mod(Err_dPsi21(end), 2*pi);
+Err_dPsi21 = Err_dPsi21 - tmp;
+subplot(2,2,subN); subN = subN+1;
+plot(t, (Err_dPsi21)*180/2/pi, t, (Err_dPsi21 + 2*pi)*180/2/pi, t, (Err_dPsi21 - 2*pi)*180/2/pi);
+xlabel('t, sec');
+ylabel('\delta \Delta \Psi_{21}, mm');
+
+Err_dPsi31 =  X31_2_est_c - X31_1_est_c - Nabla31_c - X31_2_ist_c + X31_1_ist_c;
+tmp = Err_dPsi31(end) - mod(Err_dPsi31(end), 2*pi);
+Err_dPsi31 = Err_dPsi31 - tmp;
+subplot(2,2,subN); subN = subN+1;
+plot(t, (Err_dPsi31)*180/2/pi, t, (Err_dPsi31 + 2*pi)*180/2/pi, t, (Err_dPsi31 - 2*pi)*180/2/pi);
+xlabel('t, sec');
+ylabel('\delta \Delta \Psi_{31}, mm');
+
+scr_SKO_Calc;
