@@ -9,8 +9,10 @@
 % http://srns.ru/wiki/Blog:Korogodin/03.06.2011,_Алгоритм_оценки_задержки_а
 % налоговых_частей_в_случае_трех_антенн
 
-% clear all
+clear 
 clc
+
+load([pwd '/RealData/Data_20120128.mat']);
 
 Tmod = 600; %s
 
@@ -18,7 +20,7 @@ Tc = 0.005; % Интервал накопления в корреляторе
 C = fix(Tmod/Tc);
 t = Tc:Tc:Tmod; le_t = length(t);
 stdn_IQ = 600;
-qcno_dB = 45;
+qcno_dB = 30;
 [A_IQ, qcno] = qcno_change(qcno_dB, stdn_IQ, Tc); % Амплитуда, соответсвующая выбранному qcno_dB
 
 std_Ud = sqrt( 2 / (qcno*Tc) );
@@ -43,17 +45,22 @@ Hj = 1;
 Kj(2) = (Hj / 0.53)^2;
 Kj(1) = sqrt(2*Kj(2));
 Kj = Kj*Tc; Kj(2) = 0*Kj(2)/1000;
+
+neideal_jump = 1; % Способ передать системе истинные прыжки для оценки потенциальной точности
 scr_ExtrIstEst_Init;
 
 scr_Chi_Init; % Значение задержек в коммутаторе и разности аналоговых частей
 
-freq_analog_change = 0.25; % Период смены аналоговой части
+freq_analog_change = 0.25; % Частота смены аналоговой части
 scr_Circle_Init; % Определяем циклограмму переключений
 
 csum_max = 64; csum = csum_max + 1;
 
 init_arrays; 
 for c = 1:C
+
+    % Текущие оценки скачков 1->2 и 2->3
+    scr_Jump_est; % Запускать до эволюции Delta!
     
     % Модель прохождения через коммутатор и аналоговые части
     if Commut_Phase(c) == 1 % Если сейчас коммутатор находится в фазе переключений (1)
@@ -89,6 +96,7 @@ for c = 1:C
         csum = 1;
     end
     
+   
     % Система слежения за первой разностью фаз
     Ud21_1 = mymod2pi(Psi21_1_izm - X21_1_extr(1) - J21_1_extr) + std_Ud *randn(1,1); % Эмулятор дискриминатора
     if csum > csum_max
@@ -127,11 +135,19 @@ for c = 1:C
             X31_23_2_j_extr = X31_23_2_j_extr + Kj*Ud31_2;
         end            
     end
+    if ~neideal_jump
+        X21_12_1_j_extr(1) = J21_12_1_ist_c(c);
+        X31_12_1_j_extr(1) = J31_12_1_ist_c(c);
+        X21_12_2_j_extr(1) = J21_12_2_ist_c(c);
+        X31_12_2_j_extr(1) = J31_12_2_ist_c(c);            
+        X21_23_1_j_extr(1) = J21_23_1_ist_c(c);
+        X31_23_1_j_extr(1) = J31_23_1_ist_c(c);
+        X21_23_2_j_extr(1) = J21_23_2_ist_c(c);
+        X31_23_2_j_extr(1) = J31_23_2_ist_c(c);
+    end
+    
     csum = csum+1;
    
-    % Текущие оценки скачков 1->2 и 2->3
-    scr_Jump_est; % Запускать до эволюции Delta!
-     
     x1_nabla = H1_nabla^-1 * J1_nabla; % Решение только по скачку 1->2
     x2_nabla = H2_nabla^-1 * J2_nabla; % Решение только по скачку 1->3
     x_nabla = (H_nabla'*H_nabla)^-1*H_nabla' * J_nabla; % Общее решение по всем скачкам
